@@ -61,7 +61,6 @@ const beforeClose = ()=>{
   form.value.stock = ''
 }
 
-
 const formRef = ref<FormInstance>()
 const handleConfirm = ()=>{
   formRef.value?.validate((valid)=>{
