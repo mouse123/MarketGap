@@ -1,6 +1,6 @@
 <template>
     <div class="market-modules flex flex-col">
-        <el-steps :active="step" align-center>
+        <el-steps :active="step" align-center class="mb-5">
             <el-step title="Market Expectation Lens" description="市场预期透视镜" />
             <el-step title="Key Metrics Cockpit" description="核心指标驾驶舱" />
             <el-step title="Thesis Insight Recorder" description="论点洞察记录器" />
