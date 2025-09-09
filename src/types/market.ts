@@ -49,3 +49,12 @@ export interface EastmoneyMarketEn {
     change60d?: number; // 六十日涨跌幅
     changeYTD?: number; // 年初至今涨跌幅
 }
+
+// Provide/Inject 相关类型
+import type { InjectionKey, Ref } from 'vue'
+
+export type MarketInfoType = Record<string, unknown>
+
+// Injection Keys
+export const marketInfoKey: InjectionKey<Ref<MarketInfoType | null>> = Symbol('marketInfo')
+export const marketCodeKey: InjectionKey<string | string[]> = Symbol('marketCode')

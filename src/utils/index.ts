@@ -151,3 +151,15 @@ export const lazyLoadData = <T>(
 
     return () => { isCancelled = true; };
 };
+
+/**
+ * 将 item/value 数组转换为 key/value 对象
+ * @param dataArray - 包含 item 和 value 属性的对象数组
+ * @returns 转换后的对象，以 item 作为 key，value 作为值
+ */
+export const convertArrayToObject = (dataArray: Array<{item: string, value: unknown}>) => {
+    return dataArray.reduce((obj, item) => {
+        obj[item.item] = item.value
+        return obj
+    }, {} as Record<string, unknown>)
+}
