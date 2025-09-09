@@ -1,67 +1,67 @@
 <template>
-  <div class="thesis-recorder p-6">
-    <h2 class="text-2xl font-bold mb-6">投资论证记录器</h2>
+  <div class="thesis-recorder p-6 bg-gray-900 text-white min-h-screen">
+    <h2 class="text-2xl font-bold mb-6 text-orange-400">投资论证记录器</h2>
 
     <div v-if="stockInfo" class="space-y-8">
       <!-- 股票信息概览 -->
-      <div class="bg-gradient-to-r from-purple-50 to-pink-50 p-6 rounded-lg border border-purple-200">
+      <div class="bg-gradient-to-r from-gray-800 to-gray-700 p-6 rounded-lg border border-orange-500">
         <div class="flex justify-between items-center mb-4">
-          <h3 class="text-xl font-semibold text-purple-800">分析标的</h3>
+          <h3 class="text-xl font-semibold text-orange-400">分析标的</h3>
           <div class="text-right">
-            <div class="text-sm text-gray-600">分析时间</div>
-            <div class="text-sm font-medium">{{ currentDateTime }}</div>
+            <div class="text-sm text-gray-400">分析时间</div>
+            <div class="text-sm font-medium text-gray-200">{{ currentDateTime }}</div>
           </div>
         </div>
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div>
-            <span class="text-sm text-gray-600">股票代码：</span>
-            <span class="font-bold text-purple-700">{{ stockInfo.code }}</span>
+            <span class="text-sm text-gray-400">股票代码：</span>
+            <span class="font-bold text-orange-300">{{ stockInfo.code }}</span>
           </div>
           <div>
-            <span class="text-sm text-gray-600">公司名称：</span>
-            <span class="font-bold text-purple-700">{{ stockInfo.name }}</span>
+            <span class="text-sm text-gray-400">公司名称：</span>
+            <span class="font-bold text-orange-300">{{ stockInfo.name }}</span>
           </div>
           <div>
-            <span class="text-sm text-gray-600">当前股价：</span>
-            <span class="font-bold text-purple-700">¥{{ stockInfo.currentPrice }}</span>
+            <span class="text-sm text-gray-400">当前股价：</span>
+            <span class="font-bold text-yellow-400">¥{{ stockInfo.currentPrice }}</span>
           </div>
           <div>
-            <span class="text-sm text-gray-600">市盈率：</span>
-            <span class="font-bold text-purple-700">{{ stockInfo.pe?.toFixed(2) || 'N/A' }}</span>
+            <span class="text-sm text-gray-400">市盈率：</span>
+            <span class="font-bold text-orange-300">{{ stockInfo.pe?.toFixed(2) || 'N/A' }}</span>
           </div>
         </div>
       </div>
 
       <!-- 结构化编辑器 -->
-      <div class="bg-white border-2 border-gray-200 rounded-lg overflow-hidden">
+      <div class="bg-gray-800 border-2 border-gray-600 rounded-lg overflow-hidden">
 
         <!-- 我的判断 -->
-        <div class="border-b border-gray-200">
-          <div class="bg-blue-50 px-6 py-4">
-            <h3 class="text-lg font-semibold text-blue-800 flex items-center">
+        <div class="border-b border-gray-600">
+          <div class="bg-gray-700 px-6 py-4">
+            <h3 class="text-lg font-semibold text-blue-400 flex items-center">
               <span class="mr-2">🎯</span>
               我的判断 (My Thesis)
             </h3>
           </div>
           <div class="p-6">
             <div class="mb-4">
-              <label class="block text-sm font-medium text-gray-700 mb-2">预期增长率 (%)</label>
+              <label class="block text-sm font-medium text-gray-300 mb-2">预期增长率 (%)</label>
               <div class="flex items-center space-x-4">
                 <el-slider v-model="expectedGrowthRate" :min="-10" :max="50" :step="0.5" class="flex-1" />
-                <span class="text-lg font-bold text-blue-600 w-16">{{ expectedGrowthRate }}%</span>
+                <span class="text-lg font-bold text-cyan-400 w-16">{{ expectedGrowthRate }}%</span>
               </div>
             </div>
-            <div class="mb-4 p-4 bg-blue-50 rounded-lg">
-              <p class="text-sm text-blue-800">
+            <div class="mb-4 p-4 bg-gray-700 rounded-lg border border-gray-600">
+              <p class="text-sm text-blue-300">
                 我认为 <strong>{{ stockInfo.name }}</strong> 未来的增长率会是
                 <span class="text-lg font-bold">{{ expectedGrowthRate }}%</span>，
-                <span v-if="growthComparison > 0" class="text-green-600 font-semibold">
+                <span v-if="growthComparison > 0" class="text-green-400 font-semibold">
                   高于市场隐含预期 {{ Math.abs(growthComparison).toFixed(1) }} 个百分点
                 </span>
-                <span v-else-if="growthComparison < 0" class="text-red-600 font-semibold">
+                <span v-else-if="growthComparison < 0" class="text-red-400 font-semibold">
                   低于市场隐含预期 {{ Math.abs(growthComparison).toFixed(1) }} 个百分点
                 </span>
-                <span v-else class="text-gray-600 font-semibold">与市场预期基本一致</span>
+                <span v-else class="text-gray-300 font-semibold">与市场预期基本一致</span>
               </p>
             </div>
             <el-input v-model="thesis.judgment" type="textarea" :rows="4" placeholder="详细阐述你的判断理由..." class="w-full" />
@@ -69,18 +69,18 @@
         </div>
 
         <!-- 支持证据 -->
-        <div class="border-b border-gray-200">
-          <div class="bg-green-50 px-6 py-4">
-            <h3 class="text-lg font-semibold text-green-800 flex items-center">
+        <div class="border-b border-gray-600">
+          <div class="bg-gray-700 px-6 py-4">
+            <h3 class="text-lg font-semibold text-green-400 flex items-center">
               <span class="mr-2">📊</span>
               支持证据 (Supporting Evidence)
             </h3>
-            <p class="text-sm text-green-600 mt-1">基于"核心指标驾驶舱"的数据，说明你的判断依据</p>
+            <p class="text-sm text-green-300 mt-1">基于"核心指标驾驶舱"的数据，说明你的判断依据</p>
           </div>
           <div class="p-6">
             <!-- 快速插入数据按钮 -->
             <div class="mb-4">
-              <div class="text-sm font-medium text-gray-700 mb-2">快速插入关键数据：</div>
+              <div class="text-sm font-medium text-gray-300 mb-2">快速插入关键数据：</div>
               <div class="flex flex-wrap gap-2">
                 <el-button size="small" type="primary" plain @click="insertMetric('pe', stockInfo.pe)">
                   市盈率: {{ stockInfo.pe?.toFixed(2) }}
@@ -103,12 +103,12 @@
 
         <!-- 核心风险 -->
         <div>
-          <div class="bg-red-50 px-6 py-4">
-            <h3 class="text-lg font-semibold text-red-800 flex items-center">
+          <div class="bg-gray-700 px-6 py-4">
+            <h3 class="text-lg font-semibold text-red-400 flex items-center">
               <span class="mr-2">⚠️</span>
               核心风险 (Key Risks)
             </h3>
-            <p class="text-sm text-red-600 mt-1">什么情况发生会导致你的判断是错误的？</p>
+            <p class="text-sm text-red-300 mt-1">什么情况发生会导致你的判断是错误的？</p>
           </div>
           <div class="p-6">
             <el-input v-model="thesis.risks" type="textarea" :rows="6" placeholder="例如：
@@ -123,7 +123,7 @@
 
       <!-- 操作按钮 -->
       <div class="flex justify-between items-center">
-        <div class="text-sm text-gray-500">
+        <div class="text-sm text-gray-400">
           💡 提示：完整的投资逻辑应该包含判断、证据和风险三个维度
         </div>
         <div class="space-x-3">
@@ -134,16 +134,16 @@
       </div>
 
       <!-- 论证完整度指示器 -->
-      <div class="bg-gray-50 p-4 rounded-lg">
-        <div class="text-sm font-medium text-gray-700 mb-2">论证完整度</div>
+      <div class="bg-gray-800 p-4 rounded-lg border border-gray-600">
+        <div class="text-sm font-medium text-gray-300 mb-2">论证完整度</div>
         <div class="flex space-x-2">
           <div class="flex-1">
             <div class="flex justify-between text-xs mb-1">
               <span>判断</span>
               <span>{{ judegmentCompletion }}%</span>
             </div>
-            <div class="w-full bg-gray-200 rounded-full h-2">
-              <div class="bg-blue-500 h-2 rounded-full transition-all" :style="{ width: judegmentCompletion + '%' }">
+            <div class="w-full bg-gray-600 rounded-full h-2">
+              <div class="bg-blue-400 h-2 rounded-full transition-all" :style="{ width: judegmentCompletion + '%' }">
               </div>
             </div>
           </div>
@@ -152,8 +152,8 @@
               <span>证据</span>
               <span>{{ evidenceCompletion }}%</span>
             </div>
-            <div class="w-full bg-gray-200 rounded-full h-2">
-              <div class="bg-green-500 h-2 rounded-full transition-all" :style="{ width: evidenceCompletion + '%' }">
+            <div class="w-full bg-gray-600 rounded-full h-2">
+              <div class="bg-green-400 h-2 rounded-full transition-all" :style="{ width: evidenceCompletion + '%' }">
               </div>
             </div>
           </div>
@@ -162,15 +162,15 @@
               <span>风险</span>
               <span>{{ risksCompletion }}%</span>
             </div>
-            <div class="w-full bg-gray-200 rounded-full h-2">
-              <div class="bg-red-500 h-2 rounded-full transition-all" :style="{ width: risksCompletion + '%' }"></div>
+            <div class="w-full bg-gray-600 rounded-full h-2">
+              <div class="bg-red-400 h-2 rounded-full transition-all" :style="{ width: risksCompletion + '%' }"></div>
             </div>
           </div>
         </div>
       </div>
     </div>
 
-    <div v-else class="text-center py-8 text-gray-500">
+    <div v-else class="text-center py-8 text-gray-400">
       正在加载市场数据...
     </div>
   </div>

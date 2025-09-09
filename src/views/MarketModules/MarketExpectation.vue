@@ -1,45 +1,45 @@
 <template>
-  <div class="market-expectation p-6">
-    <h2 class="text-2xl font-bold mb-6">市场预期透视镜</h2>
+  <div class="market-expectation p-6 bg-gray-900 text-white min-h-screen">
+    <h2 class="text-2xl font-bold mb-6 text-blue-400">市场预期透视镜</h2>
 
     <div v-if="stockInfo" class="space-y-8">
       <!-- 股票基础信息 -->
-      <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-lg">
-        <h3 class="text-xl font-semibold mb-4 text-indigo-800">当前市场状况</h3>
+      <div class="bg-gradient-to-r from-gray-800 to-gray-700 p-6 rounded-lg border border-gray-600">
+        <h3 class="text-xl font-semibold mb-4 text-blue-400">当前市场状况</h3>
         <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
           <div class="text-center">
-            <div class="text-sm text-gray-600">股票代码</div>
-            <div class="text-lg font-bold text-indigo-700">{{ stockInfo.code }}</div>
+            <div class="text-sm text-gray-400">股票代码</div>
+            <div class="text-lg font-bold text-blue-300">{{ stockInfo.code }}</div>
           </div>
           <div class="text-center">
-            <div class="text-sm text-gray-600">公司名称</div>
-            <div class="text-lg font-bold text-indigo-700">{{ stockInfo.name }}</div>
+            <div class="text-sm text-gray-400">公司名称</div>
+            <div class="text-lg font-bold text-blue-300">{{ stockInfo.name }}</div>
           </div>
           <div class="text-center">
-            <div class="text-sm text-gray-600">当前股价</div>
-            <div class="text-xl font-bold text-indigo-800">¥{{ stockInfo.currentPrice }}</div>
+            <div class="text-sm text-gray-400">当前股价</div>
+            <div class="text-xl font-bold text-yellow-400">¥{{ stockInfo.currentPrice }}</div>
           </div>
           <div class="text-center">
-            <div class="text-sm text-gray-600">总市值</div>
-            <div class="text-lg font-bold text-indigo-700">{{ formatMarketCap(stockInfo.totalMarketCap) }}</div>
+            <div class="text-sm text-gray-400">总市值</div>
+            <div class="text-lg font-bold text-blue-300">{{ formatMarketCap(stockInfo.totalMarketCap) }}</div>
           </div>
         </div>
       </div>
 
       <!-- DCF 模型调节器 -->
-      <div class="bg-white border-2 border-gray-200 p-6 rounded-lg shadow-lg">
-        <h3 class="text-xl font-semibold mb-6 text-gray-800">DCF 估值模型</h3>
+      <div class="bg-gray-800 border-2 border-gray-600 p-6 rounded-lg shadow-lg">
+        <h3 class="text-xl font-semibold mb-6 text-green-400">DCF 估值模型</h3>
 
         <!-- 增长率滑块 -->
         <div class="mb-8">
           <div class="flex justify-between items-center mb-4">
-            <label class="text-lg font-medium text-gray-700">未来5年收入增长率</label>
-            <span class="text-2xl font-bold text-blue-600">{{ revenueGrowthRate }}%</span>
+            <label class="text-lg font-medium text-gray-300">未来5年收入增长率</label>
+            <span class="text-2xl font-bold text-cyan-400">{{ revenueGrowthRate }}%</span>
           </div>
           <div class="px-4">
             <el-slider v-model="revenueGrowthRate" :min="-10" :max="50" :step="0.5" :show-tooltip="false"
               class="mb-2" />
-            <div class="flex justify-between text-sm text-gray-500">
+            <div class="flex justify-between text-sm text-gray-400">
               <span>-10%</span>
               <span>0%</span>
               <span>25%</span>
@@ -51,32 +51,32 @@
         <!-- 其他财务参数 -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">利润率 (%)</label>
+            <label class="block text-sm font-medium text-gray-300 mb-2">利润率 (%)</label>
             <el-slider v-model="profitMargin" :min="0" :max="30" :step="0.5" />
-            <div class="text-center text-sm text-gray-600 mt-1">{{ profitMargin }}%</div>
+            <div class="text-center text-sm text-gray-400 mt-1">{{ profitMargin }}%</div>
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">资本支出占收入比 (%)</label>
+            <label class="block text-sm font-medium text-gray-300 mb-2">资本支出占收入比 (%)</label>
             <el-slider v-model="capexRatio" :min="0" :max="20" :step="0.5" />
-            <div class="text-center text-sm text-gray-600 mt-1">{{ capexRatio }}%</div>
+            <div class="text-center text-sm text-gray-400 mt-1">{{ capexRatio }}%</div>
           </div>
         </div>
 
         <!-- DCF 计算结果 -->
-        <div class="bg-gradient-to-r from-green-50 to-emerald-50 p-6 rounded-lg">
+        <div class="bg-gradient-to-r from-gray-700 to-gray-600 p-6 rounded-lg border border-gray-500">
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div class="text-center">
-              <div class="text-sm text-gray-600">预期内在价值</div>
-              <div class="text-2xl font-bold text-green-600">¥{{ calculatedValue.toFixed(2) }}</div>
+              <div class="text-sm text-gray-300">预期内在价值</div>
+              <div class="text-2xl font-bold text-green-400">¥{{ calculatedValue.toFixed(2) }}</div>
             </div>
             <div class="text-center">
-              <div class="text-sm text-gray-600">价值偏差</div>
-              <div class="text-xl font-bold" :class="valueDeviation >= 0 ? 'text-red-600' : 'text-green-600'">
+              <div class="text-sm text-gray-300">价值偏差</div>
+              <div class="text-xl font-bold" :class="valueDeviation >= 0 ? 'text-red-400' : 'text-green-400'">
                 {{ valueDeviation >= 0 ? '+' : '' }}{{ valueDeviation.toFixed(1) }}%
               </div>
             </div>
             <div class="text-center">
-              <div class="text-sm text-gray-600">投资建议</div>
+              <div class="text-sm text-gray-300">投资建议</div>
               <div class="text-lg font-bold" :class="getInvestmentAdviceColor()">
                 {{ getInvestmentAdvice() }}
               </div>
@@ -86,23 +86,23 @@
       </div>
 
       <!-- 市场隐含预期 -->
-      <div class="bg-yellow-50 border-l-4 border-yellow-400 p-6">
-        <h3 class="text-lg font-semibold mb-3 text-yellow-800">💡 市场隐含预期分析</h3>
-        <p class="text-gray-700 text-lg leading-relaxed">
-          <strong>关键发现：</strong>为了支撑当前股价 <span class="font-bold text-yellow-800">¥{{ stockInfo.currentPrice }}</span>，
-          市场隐含的预期是，<span class="font-bold text-yellow-800">{{ stockInfo.name }}</span>
+      <div class="bg-gray-800 border-l-4 border-yellow-400 p-6 rounded-lg">
+        <h3 class="text-lg font-semibold mb-3 text-yellow-400">💡 市场隐含预期分析</h3>
+        <p class="text-gray-200 text-lg leading-relaxed">
+          <strong>关键发现：</strong>为了支撑当前股价 <span class="font-bold text-yellow-400">¥{{ stockInfo.currentPrice }}</span>，
+          市场隐含的预期是，<span class="font-bold text-yellow-400">{{ stockInfo.name }}</span>
           未来5年的年均收入增长率需要达到
-          <span class="text-2xl font-bold text-red-600">{{ impliedGrowthRate.toFixed(1) }}%</span>。
+          <span class="text-2xl font-bold text-red-400">{{ impliedGrowthRate.toFixed(1) }}%</span>。
         </p>
-        <div class="mt-4 p-4 bg-white rounded-lg">
-          <p class="text-sm text-gray-600">
+        <div class="mt-4 p-4 bg-gray-700 rounded-lg border border-gray-600">
+          <p class="text-sm text-gray-300">
             <strong>计算说明：</strong>FCF（自由现金流） = 经营活动现金流 - 资本性支出 (CapEx)
           </p>
         </div>
       </div>
     </div>
 
-    <div v-else class="text-center py-8 text-gray-500">
+    <div v-else class="text-center py-8 text-gray-400">
       正在加载市场数据...
     </div>
   </div>
@@ -206,14 +206,14 @@ const getInvestmentAdvice = () => {
   return '合理估值'
 }
 
-// 投资建议颜色
+// 投资建议颜色 (夜间模式)
 const getInvestmentAdviceColor = () => {
   const deviation = valueDeviation.value
-  if (deviation > 20) return 'text-red-600'
-  if (deviation > 5) return 'text-orange-500'
-  if (deviation < -20) return 'text-green-600'
-  if (deviation < -5) return 'text-green-500'
-  return 'text-gray-600'
+  if (deviation > 20) return 'text-red-400'
+  if (deviation > 5) return 'text-orange-400'
+  if (deviation < -20) return 'text-green-400'
+  if (deviation < -5) return 'text-green-300'
+  return 'text-gray-300'
 }
 
 console.log('MarketExpectation - 注入的数据:', { marketInfo: marketInfo?.value, marketCode })
