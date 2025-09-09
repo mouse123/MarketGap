@@ -30,40 +30,39 @@
       <div class="bg-gray-800 border-2 border-gray-600 p-6 rounded-lg shadow-lg">
         <h3 class="text-xl font-semibold mb-6 text-green-400">DCF 估值模型</h3>
 
-        <!-- 增长率滑块 -->
-        <div class="mb-8">
-          <div class="flex justify-between items-center mb-4">
-            <label class="text-lg font-medium text-gray-300">未来5年收入增长率</label>
-            <span class="text-2xl font-bold text-cyan-400">{{ revenueGrowthRate }}%</span>
-          </div>
-          <div class="px-4">
-            <el-slider v-model="revenueGrowthRate" :min="-10" :max="50" :step="0.5" :show-tooltip="false"
-              class="mb-2" />
-            <div class="flex justify-between text-sm text-gray-400">
-              <span>-10%</span>
-              <span>0%</span>
-              <span>25%</span>
-              <span>50%</span>
+
+        <!-- 机构预测数据展示 -->
+        <div v-if="showForecastData" class="mb-6 p-4 bg-gray-700 rounded-lg border border-gray-600">
+          <h4 class="text-sm font-medium text-gray-300 mb-3">🏛️ 机构预测数据</h4>
+          <div class="grid grid-cols-1 gap-3">
+            <div v-for="forecast in forecastDataList" :key="forecast.年度"
+              class="flex justify-between items-center text-sm">
+              <span class="text-gray-400">{{ forecast.年度 }}年EPS：</span>
+              <span class="text-green-400 font-medium">
+                ¥{{ forecast.均值.toFixed(2) }}
+                <span class="text-xs text-gray-500">({{ forecast.预测机构数 }}家机构)</span>
+              </span>
             </div>
           </div>
         </div>
 
-        <!-- 其他财务参数 -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-          <div>
-            <label class="block text-sm font-medium text-gray-300 mb-2">利润率 (%)</label>
-            <el-slider v-model="profitMargin" :min="0" :max="30" :step="0.5" />
-            <div class="text-center text-sm text-gray-400 mt-1">{{ profitMargin }}%</div>
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-300 mb-2">资本支出占收入比 (%)</label>
-            <el-slider v-model="capexRatio" :min="0" :max="20" :step="0.5" />
-            <div class="text-center text-sm text-gray-400 mt-1">{{ capexRatio }}%</div>
+        <!-- 无机构预测时的提示 -->
+        <div v-else class="mb-6 p-4 bg-yellow-800 bg-opacity-30 rounded-lg border border-yellow-600">
+          <div class="flex items-center text-yellow-400">
+            <span class="mr-2">⚠️</span>
+            <span class="text-sm">暂无机构预测数据，无法进行DCF估值</span>
           </div>
         </div>
 
         <!-- DCF 计算结果 -->
-        <div class="bg-gradient-to-r from-gray-700 to-gray-600 p-6 rounded-lg border border-gray-500">
+        <div v-if="showForecastData"
+          class="bg-gradient-to-r from-gray-700 to-gray-600 p-6 rounded-lg border border-gray-500">
+          <div class="flex justify-between items-center mb-4">
+            <h4 class="text-lg font-semibold text-gray-200">DCF 估值结果</h4>
+            <div class="text-xs text-gray-400">
+              <span>🏛️ 基于机构预测</span>
+            </div>
+          </div>
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div class="text-center">
               <div class="text-sm text-gray-300">预期内在价值</div>
@@ -82,6 +81,41 @@
               </div>
             </div>
           </div>
+        </div>
+      </div>
+
+      <!-- 机构利润预测 -->
+      <div v-if="showForecastData" class="bg-gray-800 border-l-4 border-purple-400 p-6 rounded-lg">
+        <h3 class="text-lg font-semibold mb-4 text-purple-400">📊 机构利润预测</h3>
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="border-b border-gray-600">
+                <th class="text-left py-2 text-gray-300">年度</th>
+                <th class="text-center py-2 text-gray-300">机构数</th>
+                <th class="text-center py-2 text-gray-300">预测均值</th>
+                <th class="text-center py-2 text-gray-300">预测区间</th>
+                <th class="text-center py-2 text-gray-300">行业均值</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="forecast in forecastDataList" :key="forecast.年度" class="border-b border-gray-700">
+                <td class="py-2 font-medium text-purple-300">{{ forecast.年度 }}</td>
+                <td class="text-center py-2 text-gray-200">{{ forecast.预测机构数 }}</td>
+                <td class="text-center py-2 font-bold text-green-400">¥{{ forecast.均值?.toFixed(2) }}</td>
+                <td class="text-center py-2 text-gray-300">
+                  ¥{{ forecast.最小值?.toFixed(2) }} - ¥{{ forecast.最大值?.toFixed(2) }}
+                </td>
+                <td class="text-center py-2 text-blue-300">¥{{ forecast.行业平均数?.toFixed(2) }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="mt-4 p-3 bg-gray-700 rounded-lg">
+          <p class="text-xs text-gray-300">
+            💡 <strong>机构预测洞察：</strong>
+            <span v-if="institutionForecastInsight">{{ institutionForecastInsight }}</span>
+          </p>
         </div>
       </div>
 
@@ -109,8 +143,8 @@
 </template>
 
 <script setup lang="ts">
-import { inject, computed, ref } from 'vue'
-import { marketInfoKey, marketCodeKey } from '@/types/market'
+import { inject, computed } from 'vue'
+import { marketInfoKey, marketCodeKey, marketProfitForecastKey } from '@/types/market'
 
 defineOptions({
   name: 'MarketExpectation'
@@ -119,11 +153,8 @@ defineOptions({
 // 注入父组件提供的数据
 const marketInfo = inject(marketInfoKey)
 const marketCode = inject(marketCodeKey)
+const marketProfitForecast = inject(marketProfitForecastKey)
 
-// DCF 模型参数
-const revenueGrowthRate = ref(8.0) // 收入增长率
-const profitMargin = ref(12.5) // 利润率
-const capexRatio = ref(5.0) // 资本支出占收入比
 
 // 获取股票信息
 const stockInfo = computed(() => {
@@ -149,28 +180,61 @@ const formatMarketCap = (value: number) => {
   return value.toString()
 }
 
-// DCF 计算 - 简化版本
+// 机构预测洞察
+const institutionForecastInsight = computed(() => {
+  if (!marketProfitForecast?.value || marketProfitForecast.value.length === 0) return ''
+
+  const forecasts = marketProfitForecast.value
+  const currentYear = new Date().getFullYear()
+  const nextYearForecast = forecasts.find(f => parseInt(f.年度) === currentYear + 1)
+
+  if (!nextYearForecast) return ''
+
+  const growthRate = nextYearForecast.均值 > (stockInfo.value?.eps || 0)
+    ? ((nextYearForecast.均值 - (stockInfo.value?.eps || 0)) / (stockInfo.value?.eps || 1)) * 100
+    : 0
+
+  const consensus = nextYearForecast.预测机构数 >= 8 ? '高' : nextYearForecast.预测机构数 >= 5 ? '中' : '低'
+
+  return `${forecasts.length}年预测显示${consensus}度机构共识，预期${currentYear + 1}年EPS增长${growthRate.toFixed(1)}%`
+})
+
+// 是否显示机构预测
+const showForecastData = computed(() => {
+  return !!(marketProfitForecast?.value && marketProfitForecast.value.length > 0)
+})
+
+// 获取机构预测数据（用于模板）
+const forecastDataList = computed(() => {
+  return marketProfitForecast?.value || []
+})
+
+
+// DCF 计算 - 仅基于机构预测数据
 const calculatedValue = computed(() => {
-  if (!stockInfo.value) return 0
+  if (!stockInfo.value || !showForecastData.value || !marketProfitForecast?.value) return 0
 
-  const currentEPS = stockInfo.value.eps || 0.5
-  const growthRate = revenueGrowthRate.value / 100
   const discountRate = 0.1 // 假设10%折现率
-
   let totalPV = 0
-  let futureEPS = currentEPS
 
-  // 计算未来5年的现值
-  for (let year = 1; year <= 5; year++) {
-    futureEPS = futureEPS * (1 + growthRate)
+  // 只使用机构预测数据进行DCF计算
+  marketProfitForecast.value.forEach((forecast, index) => {
+    const year = index + 1
+    const futureEPS = forecast.均值
     const yearPV = futureEPS / Math.pow(1 + discountRate, year)
     totalPV += yearPV
+  })
+
+  // 终值计算：使用最后一年的预测EPS
+  const lastYearForecast = marketProfitForecast.value[marketProfitForecast.value.length - 1]
+  if (lastYearForecast) {
+    const terminalEPS = lastYearForecast.均值
+    const lastYear = marketProfitForecast.value.length
+    const terminalValue = (terminalEPS * 15) / Math.pow(1 + discountRate, lastYear)
+    totalPV += terminalValue
   }
 
-  // 终值（简化计算）
-  const terminalValue = (futureEPS * 15) / Math.pow(1 + discountRate, 5)
-
-  return totalPV + terminalValue
+  return totalPV
 })
 
 // 价值偏差百分比

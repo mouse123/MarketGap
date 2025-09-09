@@ -11,3 +11,9 @@ export const getXueqiuByCode = async (code) => {
     const response = await fetch(`${api}/stock_individual_spot_xq?symbol=${code}&token=${token}`)
     return response.json()
 }
+
+export const stock_profit_forecast_ths = async (code) => {
+    console.log('stock_profit_forecast_ths', code)
+    const response = await fetch(`${api}/stock_profit_forecast_ths?symbol=${code.substring(2)}`)
+    return response.json()
+}

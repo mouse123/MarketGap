@@ -91,6 +91,18 @@
                 <el-button size="small" type="warning" plain @click="insertMetric('roe', stockInfo.roe)">
                   每股收益: {{ stockInfo.roe?.toFixed(2) }}
                 </el-button>
+                <!-- 机构预测数据快速插入 -->
+                <template v-if="showForecastData">
+                  <el-button size="small" type="info" plain @click="insertForecastData('consensus')">
+                    机构共识: {{ institutionConsensus }}
+                  </el-button>
+                  <el-button size="small" type="success" plain @click="insertForecastData('growth')">
+                    预期增长: {{ nextYearGrowth }}%
+                  </el-button>
+                  <el-button size="small" type="primary" plain @click="insertForecastData('full')">
+                    完整预测数据
+                  </el-button>
+                </template>
               </div>
             </div>
             <el-input v-model="thesis.evidence" type="textarea" :rows="6" placeholder="例如：
@@ -179,7 +191,7 @@
 <script setup lang="ts">
 import { inject, computed, ref, reactive } from 'vue'
 import { ElMessage } from 'element-plus'
-import { marketInfoKey, marketCodeKey } from '@/types/market'
+import { marketInfoKey, marketCodeKey, marketProfitForecastKey } from '@/types/market'
 
 defineOptions({
   name: 'ThesisRecorder'
@@ -188,6 +200,7 @@ defineOptions({
 // 注入父组件提供的数据
 const marketInfo = inject(marketInfoKey)
 const marketCode = inject(marketCodeKey)
+const marketProfitForecast = inject(marketProfitForecastKey)
 
 // 论证数据
 const thesis = reactive({
@@ -265,6 +278,30 @@ const risksCompletion = computed(() => {
   return 100
 })
 
+// 机构预测相关计算属性
+const institutionConsensus = computed(() => {
+  if (!marketProfitForecast?.value || marketProfitForecast.value.length === 0) return 'N/A'
+
+  const avgInstitutions = marketProfitForecast.value.reduce((sum, f) => sum + f.预测机构数, 0) / marketProfitForecast.value.length
+  return avgInstitutions >= 8 ? '高度一致' : avgInstitutions >= 5 ? '较为一致' : '分歧较大'
+})
+
+const nextYearGrowth = computed(() => {
+  if (!marketProfitForecast?.value || marketProfitForecast.value.length === 0 || !stockInfo.value?.roe) return 'N/A'
+
+  const currentEPS = stockInfo.value.roe
+  const nextYearForecast = marketProfitForecast.value.find(f => parseInt(f.年度) === new Date().getFullYear() + 1)
+
+  if (!nextYearForecast) return 'N/A'
+
+  return (((nextYearForecast.均值 - currentEPS) / currentEPS) * 100).toFixed(1)
+})
+
+// 是否显示机构预测
+const showForecastData = computed(() => {
+  return !!(marketProfitForecast?.value && marketProfitForecast.value.length > 0)
+})
+
 // 插入指标数据到证据中
 const insertMetric = (type: string, value: number | undefined) => {
   if (!value) return
@@ -288,6 +325,37 @@ const insertMetric = (type: string, value: number | undefined) => {
   } else {
     thesis.evidence = '• ' + metricText
   }
+}
+
+// 插入机构预测数据到证据中
+const insertForecastData = (type: 'consensus' | 'growth' | 'full') => {
+  if (!marketProfitForecast?.value || marketProfitForecast.value.length === 0) return
+
+  let forecastText = ''
+  const forecasts = marketProfitForecast.value
+
+  switch (type) {
+    case 'consensus':
+      const avgInstitutions = Math.round(forecasts.reduce((sum, f) => sum + f.预测机构数, 0) / forecasts.length)
+      forecastText = `${avgInstitutions}家机构平均覆盖，预测${institutionConsensus.value}，`
+      break
+    case 'growth':
+      forecastText = `机构预期明年EPS增长${nextYearGrowth.value}%，`
+      break
+    case 'full':
+      forecastText = forecasts.map(f =>
+        `${f.年度}年机构预测EPS均值¥${f.均值.toFixed(2)}（${f.预测机构数}家机构）`
+      ).join('、')
+      break
+  }
+
+  if (thesis.evidence) {
+    thesis.evidence += '\n• ' + forecastText
+  } else {
+    thesis.evidence = '• ' + forecastText
+  }
+
+  ElMessage.success('已插入机构预测数据')
 }
 
 // 清空所有内容
@@ -367,6 +435,10 @@ ${thesis.risks || '未填写'}
   ElMessage.success('报告已导出')
 }
 
-console.log('ThesisRecorder - 注入的数据:', { marketInfo: marketInfo?.value, marketCode })
+console.log('ThesisRecorder - 注入的数据:', {
+  marketInfo: marketInfo?.value,
+  marketCode,
+  marketProfitForecast: marketProfitForecast?.value
+})
 
 </script>

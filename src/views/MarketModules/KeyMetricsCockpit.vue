@@ -48,6 +48,28 @@
         </div>
       </div>
 
+      <!-- 机构利润预测指标 -->
+      <div v-if="showForecastData" class="bg-gray-800 p-4 rounded-lg border border-gray-600">
+        <h3 class="text-lg font-semibold mb-3 text-purple-400">机构预测指标</h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div class="text-center">
+            <div class="text-sm text-gray-400">机构共识度</div>
+            <div class="text-xl font-bold text-purple-400">{{ consensusLevel }}</div>
+          </div>
+          <div class="text-center">
+            <div class="text-sm text-gray-400">预期增长率</div>
+            <div class="text-xl font-bold text-green-400">{{ expectedGrowthRate }}%</div>
+          </div>
+          <div class="text-center">
+            <div class="text-sm text-gray-400">预测离散度</div>
+            <div class="text-xl font-bold text-yellow-400">{{ forecastDispersion }}</div>
+          </div>
+        </div>
+        <div class="mt-3 text-xs text-gray-300">
+          基于 {{ forecastYears }} 年预测数据，平均 {{ averageInstitutions }} 家机构覆盖
+        </div>
+      </div>
+
       <!-- 预期合理性分析 -->
       <div class="bg-gray-800 p-4 rounded-lg border border-gray-600">
         <h3 class="text-lg font-semibold mb-3 text-green-400">市场预期分析</h3>
@@ -80,7 +102,7 @@
 
 <script setup lang="ts">
 import { inject, computed } from 'vue'
-import { marketInfoKey, marketCodeKey } from '@/types/market'
+import { marketInfoKey, marketCodeKey, marketProfitForecastKey } from '@/types/market'
 
 defineOptions({
   name: 'KeyMetricsCockpit'
@@ -89,6 +111,7 @@ defineOptions({
 // 注入父组件提供的数据
 const marketInfo = inject(marketInfoKey)
 const marketCode = inject(marketCodeKey)
+const marketProfitForecast = inject(marketProfitForecastKey)
 
 // 创建计算属性，方便使用特定的市场数据
 const stockInfo = computed(() => {
@@ -106,7 +129,60 @@ const stockInfo = computed(() => {
   }
 })
 
+// 机构预测相关计算属性
+const consensusLevel = computed(() => {
+  if (!marketProfitForecast?.value || marketProfitForecast.value.length === 0) return 'N/A'
+
+  const avgInstitutions = marketProfitForecast.value.reduce((sum, f) => sum + f.预测机构数, 0) / marketProfitForecast.value.length
+
+  if (avgInstitutions >= 10) return '高'
+  if (avgInstitutions >= 6) return '中'
+  return '低'
+})
+
+const expectedGrowthRate = computed(() => {
+  if (!marketProfitForecast?.value || marketProfitForecast.value.length === 0 || !stockInfo.value?.roe) return 'N/A'
+
+  const currentEPS = stockInfo.value.roe
+  const nextYearForecast = marketProfitForecast.value.find(f => parseInt(f.年度) === new Date().getFullYear() + 1)
+
+  if (!nextYearForecast) return 'N/A'
+
+  return (((nextYearForecast.均值 - currentEPS) / currentEPS) * 100).toFixed(1)
+})
+
+const forecastDispersion = computed(() => {
+  if (!marketProfitForecast?.value || marketProfitForecast.value.length === 0) return 'N/A'
+
+  // 计算预测的离散程度（最大值-最小值）/均值的平均
+  const avgDispersion = marketProfitForecast.value.reduce((sum, f) => {
+    const dispersion = (f.最大值 - f.最小值) / f.均值
+    return sum + dispersion
+  }, 0) / marketProfitForecast.value.length
+
+  if (avgDispersion < 0.1) return '低'
+  if (avgDispersion < 0.25) return '中'
+  return '高'
+})
+
+const averageInstitutions = computed(() => {
+  if (!marketProfitForecast?.value || marketProfitForecast.value.length === 0) return 0
+
+  return Math.round(marketProfitForecast.value.reduce((sum, f) => sum + f.预测机构数, 0) / marketProfitForecast.value.length)
+})
+
+// 是否显示机构预测
+const showForecastData = computed(() => {
+  return !!(marketProfitForecast?.value && marketProfitForecast.value.length > 0)
+})
+
+// 预测数据年数
+const forecastYears = computed(() => {
+  return marketProfitForecast?.value?.length || 0
+})
+
 console.log('注入的市场信息:', marketInfo?.value)
 console.log('注入的市场代码:', marketCode)
+console.log('注入的利润预测:', marketProfitForecast?.value)
 
 </script>

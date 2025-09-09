@@ -14,7 +14,7 @@
 import { ref, computed, onMounted, provide } from 'vue';
 import { useRoute } from 'vue-router';
 import { convertArrayToObject } from '@/utils';
-import { marketInfoKey, marketCodeKey } from '@/types/market';
+import { marketInfoKey, marketCodeKey, marketProfitForecastKey, type ProfitForecastType } from '@/types/market';
 import MarketExpectation from './MarketExpectation.vue';
 import KeyMetricsCockpit from './KeyMetricsCockpit.vue';
 import ThesisInsightRecorder from './ThesisInsightRecorder.vue';
@@ -55,16 +55,18 @@ const stepsComputed = computed(() => {
 })
 
 const route = useRoute()
-const active = ref(STEPS_VALUE.THREE)
+const active = ref(STEPS_VALUE.ONE)
 
 // 获取市场ID
 const marketCode = route.params.id
 const marketInfo = ref<Record<string, unknown> | null>(null)
+const marketProfitForecast = ref<ProfitForecastType | null>(null)
 console.log('Market ID:', marketCode)
 
 // 提供数据给子组件
 provide(marketInfoKey, marketInfo)
 provide(marketCodeKey, marketCode)
+provide(marketProfitForecastKey, marketProfitForecast)
 
 onMounted(async () => {
     // const detail = await getXueqiuByCode(marketCode)
@@ -221,6 +223,32 @@ onMounted(async () => {
             "value": 14.04
         }
     ])
+    marketProfitForecast.value = [
+        {
+            "年度": "2025",
+            "预测机构数": 9,
+            "最小值": 0.63,
+            "均值": 0.74,
+            "最大值": 0.77,
+            "行业平均数": 1.68
+        },
+        {
+            "年度": "2026",
+            "预测机构数": 9,
+            "最小值": 0.75,
+            "均值": 0.84,
+            "最大值": 0.88,
+            "行业平均数": 2.07
+        },
+        {
+            "年度": "2027",
+            "预测机构数": 7,
+            "最小值": 0.85,
+            "均值": 0.93,
+            "最大值": 0.97,
+            "行业平均数": 2.52
+        }
+    ]
 })
 console.log("marketInfo", marketInfo)
 

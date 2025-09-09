@@ -50,11 +50,23 @@ export interface EastmoneyMarketEn {
     changeYTD?: number; // 年初至今涨跌幅
 }
 
+// 利润预测数据接口
+export interface ProfitForecast {
+    年度: string;
+    预测机构数: number;
+    最小值: number;
+    均值: number;
+    最大值: number;
+    行业平均数: number;
+}
+
 // Provide/Inject 相关类型
 import type { InjectionKey, Ref } from 'vue'
 
 export type MarketInfoType = Record<string, unknown>
+export type ProfitForecastType = ProfitForecast[]
 
 // Injection Keys
 export const marketInfoKey: InjectionKey<Ref<MarketInfoType | null>> = Symbol('marketInfo')
 export const marketCodeKey: InjectionKey<string | string[]> = Symbol('marketCode')
+export const marketProfitForecastKey: InjectionKey<Ref<ProfitForecastType | null>> = Symbol('marketProfitForecast')
