@@ -132,6 +132,13 @@
           <p class="text-sm text-gray-300">
             <strong>计算说明：</strong>FCF（自由现金流） = 经营活动现金流 - 资本性支出 (CapEx)
           </p>
+          <div v-if="latestFinancialData" class="mt-3 text-xs text-gray-400">
+            <p><strong>实际现金流数据：</strong></p>
+            <div class="grid grid-cols-2 gap-2 mt-1">
+              <span>每股经营现金流: ¥{{ latestFinancialData['每股经营性现金流(元)']?.toFixed(2) }}</span>
+              <span>现金流/净利润比: {{ latestFinancialData['经营现金净流量与净利润的比率(%)']?.toFixed(1) }}%</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -144,7 +151,7 @@
 
 <script setup lang="ts">
 import { inject, computed } from 'vue'
-import { marketInfoKey, marketCodeKey, marketProfitForecastKey } from '@/types/market'
+import { marketInfoKey, marketCodeKey, marketProfitForecastKey, marketFinancialAnalysisIndicatorKey } from '@/types/market'
 
 defineOptions({
   name: 'MarketExpectation'
@@ -154,6 +161,7 @@ defineOptions({
 const marketInfo = inject(marketInfoKey)
 const marketCode = inject(marketCodeKey)
 const marketProfitForecast = inject(marketProfitForecastKey)
+const marketFinancialAnalysisIndicator = inject(marketFinancialAnalysisIndicatorKey)
 
 
 // 获取股票信息
@@ -280,7 +288,17 @@ const getInvestmentAdviceColor = () => {
   return 'text-gray-300'
 }
 
-console.log('MarketExpectation - 注入的数据:', { marketInfo: marketInfo?.value, marketCode })
+// 获取最新的财务数据
+const latestFinancialData = computed(() => {
+  if (!marketFinancialAnalysisIndicator?.value || marketFinancialAnalysisIndicator.value.length === 0) return null
+  return marketFinancialAnalysisIndicator.value[marketFinancialAnalysisIndicator.value.length - 1]
+})
+
+console.log('MarketExpectation - 注入的数据:', { 
+  marketInfo: marketInfo?.value, 
+  marketCode,
+  marketFinancialAnalysisIndicator: marketFinancialAnalysisIndicator?.value
+})
 
 </script>
 <style scoped></style>

@@ -91,6 +91,24 @@
                 <el-button size="small" type="warning" plain @click="insertMetric('roe', stockInfo.roe)">
                   每股收益: {{ stockInfo.roe?.toFixed(2) }}
                 </el-button>
+                <!-- 财务分析指标快速插入 -->
+                <template v-if="showFinancialData && latestFinancialData">
+                  <el-button size="small" type="success" plain @click="insertFinancialMetric('roe_percent')">
+                    ROE: {{ latestFinancialData['净资产收益率(%)']?.toFixed(1) }}%
+                  </el-button>
+                  <el-button size="small" type="info" plain @click="insertFinancialMetric('profit_margin')">
+                    净利率: {{ latestFinancialData['销售净利率(%)']?.toFixed(1) }}%
+                  </el-button>
+                  <el-button size="small" type="warning" plain @click="insertFinancialMetric('debt_ratio')">
+                    负债率: {{ latestFinancialData['资产负债率(%)']?.toFixed(1) }}%
+                  </el-button>
+                  <el-button size="small" type="primary" plain @click="insertFinancialMetric('cash_flow')">
+                    现金流比率: {{ latestFinancialData['经营现金净流量与净利润的比率(%)']?.toFixed(1) }}%
+                  </el-button>
+                  <el-button size="small" type="success" plain @click="insertFinancialMetric('revenue_growth')">
+                    收入增长: {{ latestFinancialData['主营业务收入增长率(%)']?.toFixed(1) }}%
+                  </el-button>
+                </template>
                 <!-- 机构预测数据快速插入 -->
                 <template v-if="showForecastData">
                   <el-button size="small" type="info" plain @click="insertForecastData('consensus')">
@@ -191,7 +209,7 @@
 <script setup lang="ts">
 import { inject, computed, ref, reactive } from 'vue'
 import { ElMessage } from 'element-plus'
-import { marketInfoKey, marketCodeKey, marketProfitForecastKey } from '@/types/market'
+import { marketInfoKey, marketCodeKey, marketProfitForecastKey, marketFinancialAnalysisIndicatorKey } from '@/types/market'
 
 defineOptions({
   name: 'ThesisRecorder'
@@ -201,6 +219,7 @@ defineOptions({
 const marketInfo = inject(marketInfoKey)
 const marketCode = inject(marketCodeKey)
 const marketProfitForecast = inject(marketProfitForecastKey)
+const marketFinancialAnalysisIndicator = inject(marketFinancialAnalysisIndicatorKey)
 
 // 论证数据
 const thesis = reactive({
@@ -302,6 +321,17 @@ const showForecastData = computed(() => {
   return !!(marketProfitForecast?.value && marketProfitForecast.value.length > 0)
 })
 
+// 是否显示财务数据
+const showFinancialData = computed(() => {
+  return !!(marketFinancialAnalysisIndicator?.value && marketFinancialAnalysisIndicator.value.length > 0)
+})
+
+// 获取最新的财务数据
+const latestFinancialData = computed(() => {
+  if (!marketFinancialAnalysisIndicator?.value || marketFinancialAnalysisIndicator.value.length === 0) return null
+  return marketFinancialAnalysisIndicator.value[marketFinancialAnalysisIndicator.value.length - 1]
+})
+
 // 插入指标数据到证据中
 const insertMetric = (type: string, value: number | undefined) => {
   if (!value) return
@@ -356,6 +386,40 @@ const insertForecastData = (type: 'consensus' | 'growth' | 'full') => {
   }
 
   ElMessage.success('已插入机构预测数据')
+}
+
+// 插入财务指标数据到证据中
+const insertFinancialMetric = (type: string) => {
+  if (!latestFinancialData.value) return
+
+  let metricText = ''
+  const data = latestFinancialData.value
+
+  switch (type) {
+    case 'roe_percent':
+      metricText = `净资产收益率为${data['净资产收益率(%)']?.toFixed(2)}%，`
+      break
+    case 'profit_margin':
+      metricText = `销售净利率为${data['销售净利率(%)']?.toFixed(2)}%，`
+      break
+    case 'debt_ratio':
+      metricText = `资产负债率为${data['资产负债率(%)']?.toFixed(2)}%，`
+      break
+    case 'cash_flow':
+      metricText = `经营现金流与净利润比率为${data['经营现金净流量与净利润的比率(%)']?.toFixed(2)}%，`
+      break
+    case 'revenue_growth':
+      metricText = `主营业务收入增长率为${data['主营业务收入增长率(%)']?.toFixed(2)}%，`
+      break
+  }
+
+  if (thesis.evidence) {
+    thesis.evidence += '\n• ' + metricText
+  } else {
+    thesis.evidence = '• ' + metricText
+  }
+
+  ElMessage.success('已插入财务指标数据')
 }
 
 // 清空所有内容
@@ -438,7 +502,8 @@ ${thesis.risks || '未填写'}
 console.log('ThesisRecorder - 注入的数据:', {
   marketInfo: marketInfo?.value,
   marketCode,
-  marketProfitForecast: marketProfitForecast?.value
+  marketProfitForecast: marketProfitForecast?.value,
+  marketFinancialAnalysisIndicator: marketFinancialAnalysisIndicator?.value
 })
 
 </script>

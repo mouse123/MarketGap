@@ -70,6 +70,125 @@
         </div>
       </div>
 
+      <!-- 盈利能力指标 -->
+      <div v-if="showFinancialData" class="bg-gray-800 p-4 rounded-lg border border-gray-600">
+        <h3 class="text-lg font-semibold mb-3 text-green-400">盈利能力指标</h3>
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div class="text-center">
+            <div class="text-sm text-gray-400">净资产收益率</div>
+            <div class="text-lg font-bold text-green-400">{{ latestFinancialData?.['净资产收益率(%)']?.toFixed(2) || 'N/A' }}%</div>
+          </div>
+          <div class="text-center">
+            <div class="text-sm text-gray-400">总资产利润率</div>
+            <div class="text-lg font-bold text-green-400">{{ latestFinancialData?.['总资产利润率(%)']?.toFixed(2) || 'N/A' }}%</div>
+          </div>
+          <div class="text-center">
+            <div class="text-sm text-gray-400">销售净利率</div>
+            <div class="text-lg font-bold text-green-400">{{ latestFinancialData?.['销售净利率(%)']?.toFixed(2) || 'N/A' }}%</div>
+          </div>
+          <div class="text-center">
+            <div class="text-sm text-gray-400">营业利润率</div>
+            <div class="text-lg font-bold text-green-400">{{ latestFinancialData?.['营业利润率(%)']?.toFixed(2) || 'N/A' }}%</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 偿债能力指标 -->
+      <div v-if="showFinancialData" class="bg-gray-800 p-4 rounded-lg border border-gray-600">
+        <h3 class="text-lg font-semibold mb-3 text-blue-400">偿债能力指标</h3>
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div class="text-center">
+            <div class="text-sm text-gray-400">流动比率</div>
+            <div class="text-lg font-bold text-blue-400">{{ latestFinancialData?.['流动比率']?.toFixed(2) || 'N/A' }}</div>
+          </div>
+          <div class="text-center">
+            <div class="text-sm text-gray-400">速动比率</div>
+            <div class="text-lg font-bold text-blue-400">{{ latestFinancialData?.['速动比率']?.toFixed(2) || 'N/A' }}</div>
+          </div>
+          <div class="text-center">
+            <div class="text-sm text-gray-400">资产负债率</div>
+            <div class="text-lg font-bold text-blue-400">{{ latestFinancialData?.['资产负债率(%)']?.toFixed(2) || 'N/A' }}%</div>
+          </div>
+          <div class="text-center">
+            <div class="text-sm text-gray-400">股东权益比率</div>
+            <div class="text-lg font-bold text-blue-400">{{ latestFinancialData?.['股东权益比率(%)']?.toFixed(2) || 'N/A' }}%</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 营运能力指标 -->
+      <div v-if="showFinancialData" class="bg-gray-800 p-4 rounded-lg border border-gray-600">
+        <h3 class="text-lg font-semibold mb-3 text-orange-400">营运能力指标</h3>
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div class="text-center">
+            <div class="text-sm text-gray-400">总资产周转率</div>
+            <div class="text-lg font-bold text-orange-400">{{ latestFinancialData?.['总资产周转率(次)']?.toFixed(2) || 'N/A' }}</div>
+          </div>
+          <div class="text-center">
+            <div class="text-sm text-gray-400">存货周转率</div>
+            <div class="text-lg font-bold text-orange-400">{{ latestFinancialData?.['存货周转率(次)']?.toFixed(2) || 'N/A' }}</div>
+          </div>
+          <div class="text-center">
+            <div class="text-sm text-gray-400">应收账款周转天数</div>
+            <div class="text-lg font-bold text-orange-400">{{ latestFinancialData?.['应收账款周转天数(天)']?.toFixed(0) || 'N/A' }}天</div>
+          </div>
+          <div class="text-center">
+            <div class="text-sm text-gray-400">存货周转天数</div>
+            <div class="text-lg font-bold text-orange-400">{{ latestFinancialData?.['存货周转天数(天)']?.toFixed(0) || 'N/A' }}天</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 成长能力指标 -->
+      <div v-if="showFinancialData" class="bg-gray-800 p-4 rounded-lg border border-gray-600">
+        <h3 class="text-lg font-semibold mb-3 text-yellow-400">成长能力指标</h3>
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div class="text-center">
+            <div class="text-sm text-gray-400">主营业务收入增长率</div>
+            <div class="text-lg font-bold" :class="getGrowthColor(latestFinancialData?.['主营业务收入增长率(%)'])">
+              {{ latestFinancialData?.['主营业务收入增长率(%)']?.toFixed(2) || 'N/A' }}%
+            </div>
+          </div>
+          <div class="text-center">
+            <div class="text-sm text-gray-400">净利润增长率</div>
+            <div class="text-lg font-bold" :class="getGrowthColor(latestFinancialData?.['净利润增长率(%)'])">
+              {{ latestFinancialData?.['净利润增长率(%)']?.toFixed(2) || 'N/A' }}%
+            </div>
+          </div>
+          <div class="text-center">
+            <div class="text-sm text-gray-400">净资产增长率</div>
+            <div class="text-lg font-bold" :class="getGrowthColor(latestFinancialData?.['净资产增长率(%)'])">
+              {{ latestFinancialData?.['净资产增长率(%)']?.toFixed(2) || 'N/A' }}%
+            </div>
+          </div>
+          <div class="text-center">
+            <div class="text-sm text-gray-400">总资产增长率</div>
+            <div class="text-lg font-bold" :class="getGrowthColor(latestFinancialData?.['总资产增长率(%)'])">
+              {{ latestFinancialData?.['总资产增长率(%)']?.toFixed(2) || 'N/A' }}%
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 现金流分析 -->
+      <div v-if="showFinancialData" class="bg-gray-800 p-4 rounded-lg border border-gray-600">
+        <h3 class="text-lg font-semibold mb-3 text-purple-400">现金流分析</h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div class="text-center">
+            <div class="text-sm text-gray-400">每股经营性现金流</div>
+            <div class="text-lg font-bold text-purple-400">¥{{ latestFinancialData?.['每股经营性现金流(元)']?.toFixed(2) || 'N/A' }}</div>
+          </div>
+          <div class="text-center">
+            <div class="text-sm text-gray-400">经营现金流 vs 净利润</div>
+            <div class="text-lg font-bold text-purple-400">{{ latestFinancialData?.['经营现金净流量与净利润的比率(%)']?.toFixed(2) || 'N/A' }}%</div>
+          </div>
+          <div class="text-center">
+            <div class="text-sm text-gray-400">现金流量比率</div>
+            <div class="text-lg font-bold text-purple-400">{{ latestFinancialData?.['现金流量比率(%)']?.toFixed(2) || 'N/A' }}%</div>
+          </div>
+        </div>
+      </div>
+
       <!-- 预期合理性分析 -->
       <div class="bg-gray-800 p-4 rounded-lg border border-gray-600">
         <h3 class="text-lg font-semibold mb-3 text-green-400">市场预期分析</h3>
@@ -81,7 +200,16 @@
             <span v-else class="text-green-400 font-semibold">保守</span>
           </p>
 
-          <div class="text-sm text-gray-300">
+          <div v-if="showFinancialData" class="text-sm text-gray-300">
+            <p><strong>基于财务数据的质量评估：</strong></p>
+            <ul class="list-disc list-inside mt-2 space-y-1">
+              <li>盈利质量：ROE {{ latestFinancialData?.['净资产收益率(%)']?.toFixed(1) }}%，营业利润率 {{ latestFinancialData?.['营业利润率(%)']?.toFixed(1) }}%</li>
+              <li>现金流健康度：经营现金流与净利润比率 {{ latestFinancialData?.['经营现金净流量与净利润的比率(%)']?.toFixed(1) }}%</li>
+              <li>资产效率：总资产周转率 {{ latestFinancialData?.['总资产周转率(次)']?.toFixed(2) }} 次</li>
+              <li>财务稳健性：资产负债率 {{ latestFinancialData?.['资产负债率(%)']?.toFixed(1) }}%，流动比率 {{ latestFinancialData?.['流动比率']?.toFixed(2) }}</li>
+            </ul>
+          </div>
+          <div v-else class="text-sm text-gray-300">
             <p><strong>增长质量评估：</strong></p>
             <ul class="list-disc list-inside mt-2 space-y-1">
               <li>收入增长驱动力拆解：历史收入增长是来自"量"还是"价"？</li>
@@ -102,7 +230,7 @@
 
 <script setup lang="ts">
 import { inject, computed } from 'vue'
-import { marketInfoKey, marketCodeKey, marketProfitForecastKey } from '@/types/market'
+import { marketInfoKey, marketCodeKey, marketProfitForecastKey, marketFinancialAnalysisIndicatorKey } from '@/types/market'
 
 defineOptions({
   name: 'KeyMetricsCockpit'
@@ -112,6 +240,7 @@ defineOptions({
 const marketInfo = inject(marketInfoKey)
 const marketCode = inject(marketCodeKey)
 const marketProfitForecast = inject(marketProfitForecastKey)
+const marketFinancialAnalysisIndicator = inject(marketFinancialAnalysisIndicatorKey)
 
 // 创建计算属性，方便使用特定的市场数据
 const stockInfo = computed(() => {
@@ -181,8 +310,30 @@ const forecastYears = computed(() => {
   return marketProfitForecast?.value?.length || 0
 })
 
+// 是否显示财务数据
+const showFinancialData = computed(() => {
+  return !!(marketFinancialAnalysisIndicator?.value && marketFinancialAnalysisIndicator.value.length > 0)
+})
+
+// 获取最新的财务数据（最后一个季度的数据）
+const latestFinancialData = computed(() => {
+  if (!marketFinancialAnalysisIndicator?.value || marketFinancialAnalysisIndicator.value.length === 0) return null
+  
+  // 返回最新（最后一个）季度的数据
+  return marketFinancialAnalysisIndicator.value[marketFinancialAnalysisIndicator.value.length - 1]
+})
+
+// 增长率颜色判断
+const getGrowthColor = (growthRate: number | undefined) => {
+  if (!growthRate) return 'text-gray-400'
+  if (growthRate > 0) return 'text-green-400'
+  if (growthRate > -5) return 'text-yellow-400'
+  return 'text-red-400'
+}
+
 console.log('注入的市场信息:', marketInfo?.value)
 console.log('注入的市场代码:', marketCode)
 console.log('注入的利润预测:', marketProfitForecast?.value)
+console.log('注入的财务分析指标:', marketFinancialAnalysisIndicator?.value)
 
 </script>
