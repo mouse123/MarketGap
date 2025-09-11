@@ -1,8 +1,10 @@
 <template>
     <div class="market-modules flex flex-col">
         <el-steps :active="active" align-center class="mb-5">
+            <el-icon v-if="active > STEPS_VALUE.ONE" class="cursor-pointer" @click="active--" size="24"><ArrowLeftBold  /></el-icon>
             <el-step v-for="step in stepsComputed" :key="step.value" :title="step.title" :description="step.description"
                 :icon="step.icon" />
+            <el-icon v-if="active < STEPS_VALUE.THREE" class="cursor-pointer" @click="active++" size="24"><ArrowRightBold /></el-icon>
         </el-steps>
         <MarketExpectation v-if="active === STEPS_VALUE.ONE" />
         <KeyMetricsCockpit v-if="active === STEPS_VALUE.TWO" />
@@ -55,7 +57,7 @@ const stepsComputed = computed(() => {
 })
 
 const route = useRoute()
-const active = ref(STEPS_VALUE.THREE)
+const active = ref(STEPS_VALUE.ONE)
 
 // 获取市场ID
 const marketCode = route.params.id
